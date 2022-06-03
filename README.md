@@ -1,7 +1,7 @@
 # bab-boilerplate-theme-code
 This repo contains the Skio Build a Box boilerplate theme code (assets and snippets), as well as instructions for usage.
 
-This boilerplate code assumes you are using a standard Shopify theme (i.e. not headless).
+This standard boilerplate code assumes you are using a standard Shopify theme (i.e. not headless).
 
 The files assets/skio-build-a-box.css and assets/skio-build-a-box.js are included in the file snippets/assets/skio-build-a-box.liquid , so they don't need to be added to the layout/theme.liquid file.
 
