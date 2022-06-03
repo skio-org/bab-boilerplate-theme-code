@@ -1,0 +1,190 @@
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+
+{{ "skio-build-a-box.css" | asset_url | stylesheet_tag }}
+
+<div id="BuildABox" v-scope="SkioBuildABox()" class="product product-name--{{ product.handle }} product-{{ product.id}}">
+  <div @vue:mounted="mounted()">
+
+    <div class="product__wrap">
+
+      <div class="product__info">
+        
+        <section class="skio-build-a-box" data-section="{{ section.id }}" v-cloak v-if="!loading" style="display: none" :style="{ 'display': loading ? 'none' : 'block' }">
+          <div class="skio-build-a-box--product__options">
+            <div class="skio-build-a-box--product" v-for="product in products">
+
+              <div class="skio-build-a-box--product-info">
+
+                <img class="skio-build-a-box--product-image" :src="product.featured_image" />
+
+                <div class="skio-build-a-box--product-title">{ product.title }</div>
+
+              </div>
+    
+              <div class="skio-build-a-box--product__variants" v-for="option in product.options" v-show="product.options.length > 1"> 
+                <template v-for="(value, index) in option.values">
+                  <input type="radio" :id="product.id + '-' + option.name + '-' + value" :value="value" :name="product.id + '-' + option.name" :checked="index == 0" v-model="product.selectedOptions[option.name]"> 
+                  <label :for="product.id + '-' + option.name + '-' + value">{ value }</label>
+                </template>
+              </div>
+        
+              <div class="skio-build-a-box--product__quantity"> 
+                <button @click="updateQuantity(product, -1)">-</button> 
+                
+                <input type="number" @input="updateQuantity(product, event.target.value, event)" name="quantity" :id="'quantity-' + product.id" :value="product.quantity"> 
+      
+                <button @click="updateQuantity(product, 1)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="skio-build-a-box--product__notice" style="display: block;" v-if="quantityError" v-cloak> 
+            <span>Please select a minimum of 4 Chubs</span>
+          </div>
+
+        </section>
+
+        <section class="skio-build-a-box--loading" v-else>
+
+          <div class="skio-build-a-box--product__options">
+
+            <div class="skio-build-a-box--product" v-for="index in preloadProductCount" :key="index">
+
+              <div class="skio-build-a-box--product-info">
+
+                <div class="skio-build-a-box--product-image preload"></div>
+
+                <div class="skio-build-a-box--product-title preload">
+                  <strong>loadingloading</strong><br>
+                  <span>loadingloading</span>
+                </div>
+
+              </div>
+        
+              <div class="skio-build-a-box--product__quantity preload"> 
+                <button name="minus" >-</button> 
+                
+                <input type="number"name="quantity" value="0"> 
+      
+                <button name="plus">+</button>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <div class="skio-build-a-box--plan-picker" v-cloak v-if="!loading" style="display: none" :style="{ 'display': loading ? 'none' : 'block' }">
+          
+          <div class="skio-build-a-box--group-container">
+            <input type="radio" name="sub_option" value="one-time" id="sub_one_off" v-model="purchaseType">
+            <label for="sub_one_off">
+              <div class="topline">
+                <div class="skio-radio__container">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                    <circle class="skio-radio" cx="12" cy="12" r="7" fill="currentColor"></circle>
+                  </svg>
+                </div>
+
+                <span>One-time purchase</span>
+
+                <span skio-onetime-price></span>
+
+              </div>
+            </label>
+          </div>
+
+
+          <div class="skio-build-a-box--group-container">
+            <input type="radio" name="sub_option" value="subscription" id="sub_recurring" v-model="purchaseType">
+            <label for="sub_recurring">
+
+              <div class="topline">
+                <div class="skio-radio__container">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                    <circle class="skio-radio" cx="12" cy="12" r="7" fill="currentColor"></circle>
+                  </svg>
+                </div>
+
+                <span>Subscribe & save</span>
+
+              </div>
+
+            </label>
+
+            <div class="skio-group-content">
+              <select class="skio-frequency" v-show="selectedSellingPlanName" v-model="selectedSellingPlanName">
+                <option v-for="(option, index) in boxProduct.selling_plan_groups.find(x => x.app_id == 'SKIO').options[0].values" :value="option" v-html="convertOptionLabel(option)"></option>
+              </select>
+              <small>Cancel or change anytime. No fees.</small>
+            </div>
+
+
+          </div>
+        </div>
+
+        <div class=" skio-build-a-box--plan-picker skio-build-a-box--plan-picker--loading" v-else>
+          
+          <div class="skio-build-a-box--group-container">
+            <input type="radio" name="sub_option" value="one-time" id="sub_one_off" v-model="purchaseType">
+            <label class="preload" for="sub_one_off">
+              <div class="topline">
+                <div class="skio-radio__container">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                    <circle class="skio-radio" cx="12" cy="12" r="7" fill="currentColor"></circle>
+                  </svg>
+                </div>
+
+                <span>One-time purchase</span>
+
+                <span skio-onetime-price></span>
+
+              </div>
+            </label>
+          </div>
+
+
+          <div class="skio-build-a-box--group-container">
+            <input type="radio" name="sub_option" value="subscription" id="sub_recurring" v-model="purchaseType">
+            <!-- need to update this to have discount -->
+
+            <label class="preload" for="sub_recurring">
+
+              <div class="topline">
+                <div class="skio-radio__container">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"></circle>
+                    <circle class="skio-radio" cx="12" cy="12" r="7" fill="currentColor"></circle>
+                  </svg>
+                </div>
+
+                <span>Subscribe & save</span>
+
+              </div>
+
+            </label>
+
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+{% unless product == empty %}
+  <script type="application/json" data-product-json>
+    {{ product | json }}
+  </script>
+{% endunless %}
+
+<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js" defer></script>
+<script src="{{'skio-build-a-box.js' | asset_url }}" defer></script>
