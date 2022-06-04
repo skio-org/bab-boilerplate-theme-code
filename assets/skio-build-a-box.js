@@ -46,7 +46,8 @@ const SkioBuildABox = (props) => {
     },
 
     get prices() {
-      return this.products.reduce((acc, product) => {
+
+      let prices = this.products.reduce((acc, product) => {
         var variant = this.getSelectedVariant(product);
       
         if(this.purchaseType == 'subscription') {
@@ -68,6 +69,11 @@ const SkioBuildABox = (props) => {
         price: 0,
         compareAtPrice: 0
       });
+
+      if (prices.price > 0 && document.querySelector(".price-item.price-item--regular")) document.querySelector(".price-item.price-item--regular").innerHTML = this.moneyFormatter.format(prices.price);
+      else if (prices.price == 0 && document.querySelector(".price-item.price-item--regular")) document.querySelector(".price-item.price-item--regular").innerHTML = this.moneyFormatter.format(19.50);
+      return prices;
+
     },
 
     get weightInGrams() {
@@ -75,18 +81,6 @@ const SkioBuildABox = (props) => {
         const variant = this.getSelectedVariant(product);
         return acc + (variant.weight * product.quantity);
       }, 0);
-    },
-
-    get smallDog() {
-      return this.prices.price / (this.weightInGrams / 250);
-    },
-
-    get mediumDog() {
-      return this.prices.price / (this.weightInGrams / 500);
-    },
-
-    get largeDog() {
-      return this.prices.price / (this.weightInGrams / 750);
     },
 
     convertID(uuid) {

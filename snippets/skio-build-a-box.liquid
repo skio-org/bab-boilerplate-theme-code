@@ -154,8 +154,7 @@
 
           <div class="skio-build-a-box--group-container">
             <input type="radio" name="sub_option" value="subscription" id="sub_recurring" v-model="purchaseType">
-            <!-- need to update this to have discount -->
-
+            
             <label class="preload" for="sub_recurring">
 
               <div class="topline">
@@ -174,10 +173,11 @@
 
           </div>
         </div>
-        
+        <span style="display: none" v-html="prices.price"></span>
       </div>
     </div>
   </div>
+  
 </div>
 
 {% unless product == empty %}
