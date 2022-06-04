@@ -11,3 +11,5 @@ The file assets/skio-cart.js should be added at the bottom of your layout/theme.
 To use the Build a Box feature, first set up your Box in the Skio app. Once your box has been created, the file snippets/skio-build-a-box.liquid must be included on the Product page in order to load the Build a Box element.
 
 If you have any questions, feel free to reach out to migrations@skio.com for assistance with Build a box theme work.
+
+Skio Developer docs: https://integrate.skio.com/skio
